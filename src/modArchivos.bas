@@ -1,13 +1,12 @@
-Attribute VB_Name = "modArchivos"
 Option Explicit
 
 ' =========================================================================
-' FUNCI”N PARA CREAR Y GUARDAR UN NUEVO LIBRO DE EXCEL EN UNA RUTA ESPECÕFICA
+' FUNCI√ìN PARA CREAR Y GUARDAR UN NUEVO LIBRO DE EXCEL EN UNA RUTA ESPEC√çFICA
 ' =========================================================================
-' Par·metros:
-' - rutaCarpeta: La ruta donde se guardar· (ej: "C:\MisCarpetas\Reportes\")
-' - nombreArchivo: El nombre del archivo sin extensiÛn (ej: "ReporteDiario")
-' Devuelve: True si se guardÛ correctamente, False si hubo error.
+' Par√°metros:
+' - rutaCarpeta: La ruta donde se guardar√° (ej: "C:\MisCarpetas\Reportes\")
+' - nombreArchivo: El nombre del archivo sin extensi√≥n (ej: "ReporteDiario")
+' Devuelve: True si se guard√≥ correctamente, False si hubo error.
 ' =========================================================================
 Public Function CrearYGuardarLibro(ByVal NombreArchivo As String, ByVal rutaCarpeta As String) As Boolean
     Dim nuevoWb As Workbook
@@ -31,24 +30,24 @@ Public Function CrearYGuardarLibro(ByVal NombreArchivo As String, ByVal rutaCarp
         Exit Function
     End If
     
-    ' 3. Construir la ruta completa del archivo (formato .xlsm habilitado para macros o .xlsx est·ndar)
-    ' Usamos .xlsx por defecto para libros nuevos sin macros, o .xlsm si el libro llevar· cÛdigo.
+    ' 3. Construir la ruta completa del archivo (formato .xlsm habilitado para macros o .xlsx est√°ndar)
+    ' Usamos .xlsx por defecto para libros nuevos sin macros, o .xlsm si el libro llevar√° c√≥digo.
     rutaCompleta = rutaCarpeta & NombreArchivo & ".xlsx"
     
-    ' 4. Crear un nuevo libro de Excel (por defecto trae 1 o m·s hojas seg˙n tu configuraciÛn)
+    ' 4. Crear un nuevo libro de Excel (por defecto trae 1 o m√°s hojas seg√∫n tu configuraci√≥n)
     Set nuevoWb = Workbooks.Add
     
     ' 5. Desactivar alertas temporalmente por si el archivo ya existe y pregunta si desea reemplazarlo
     Application.DisplayAlerts = False
     
     ' 6. Guardar el libro en la ruta indicada
-    ' xlOpenXMLWorkbook = Formato est·ndar .xlsx
+    ' xlOpenXMLWorkbook = Formato est√°ndar .xlsx
     nuevoWb.SaveAs Filename:=rutaCompleta, FileFormat:=xlOpenXMLWorkbook
     
     ' Reactivar alertas
     Application.DisplayAlerts = True
     
-    ' 7. Cerrar el nuevo libro (opcional, si solo querÌas crearlo y guardarlo en segundo plano)
+    ' 7. Cerrar el nuevo libro (opcional, si solo quer√≠as crearlo y guardarlo en segundo plano)
     ' nuevoWb.Close SaveChanges:=False
     
     CrearYGuardarLibro = True
@@ -56,7 +55,7 @@ Public Function CrearYGuardarLibro(ByVal NombreArchivo As String, ByVal rutaCarp
 
 ErrorHandler:
     Application.DisplayAlerts = True
-    MsgBox "OcurriÛ un error al intentar guardar el archivo." & vbCrLf & _
+    MsgBox "Ocurri√≥ un error al intentar guardar el archivo." & vbCrLf & _
            "Detalle: " & Err.Description, vbCritical, "Error de Guardado"
     CrearYGuardarLibro = False
 End Function
@@ -66,9 +65,9 @@ Sub AbrirRecurso(cadena As String)
 
     On Error GoTo ManejadorError
     
-    ' Validar que la cadena no estÈ vacÌa
+    ' Validar que la cadena no est√© vac√≠a
     If Trim(cadena) = "" Then
-        MsgBox "La cadena est· vacÌa.", vbExclamation, "Aviso"
+        MsgBox "La cadena est√° vac√≠a.", vbExclamation, "Aviso"
         Exit Sub
     End If
     
@@ -76,8 +75,9 @@ Sub AbrirRecurso(cadena As String)
     
     ' 2. Verificar si cuenta con el prefijo de control
     If Left(cadena, 11) = "\openexcel|" Then
-        ' Si es texto plano u otro tipo de comando, puedes manejarlo aquÌ o salir
+        ' Si es texto plano u otro tipo de comando, puedes manejarlo aqu√≠ o salir
         abrirOpenExcel cadena
+        OcultarProgreso
         Exit Sub
     End If
     
@@ -91,7 +91,7 @@ Sub AbrirRecurso(cadena As String)
 ManejadorError:
     MsgBox "No se pudo abrir el recurso especificado." & vbCrLf & _
            "Ruta/URL: " & cadena & vbCrLf & _
-           "DescripciÛn del error: " & Err.Description, vbCritical, "Error al abrir"
+           "Descripci√≥n del error: " & Err.Description, vbCritical, "Error al abrir"
            
 
 End Sub
@@ -109,7 +109,7 @@ Sub ExportarSeleccionATexto(ByVal RutaArchivo As String)
     GuardarArchivoTexto RutaArchivo
     ' Validar que el usuario haya seleccionado un rango de celdas
     If TypeName(Selection) <> "Range" Then
-        MsgBox "Por favor, selecciona un rango de celdas primero.", vbExclamation, "SelecciÛn inv·lida"
+        MsgBox "Por favor, selecciona un rango de celdas primero.", vbExclamation, "Selecci√≥n inv√°lida"
         Exit Sub
     End If
     
@@ -122,7 +122,7 @@ Sub ExportarSeleccionATexto(ByVal RutaArchivo As String)
     ' Abre el archivo en modo Output (crea o sobrescribe)
     Open RutaArchivo For Output As #Canal
     
-    ' Recorre cada celda dentro de la selecciÛn actual y escribe su valor
+    ' Recorre cada celda dentro de la selecci√≥n actual y escribe su valor
     For Each celda In Selection
         Print #Canal, celda.Value
     Next celda
@@ -132,20 +132,20 @@ Sub ExportarSeleccionATexto(ByVal RutaArchivo As String)
     
     OcultarProgreso
     
-    MsgBox "°Datos exportados con Èxito!", vbInformation, "Proceso Finalizado"
+    MsgBox "¬°Datos exportados con √©xito!", vbInformation, "Proceso Finalizado"
     AbrirRecurso RutaArchivo
     Exit Sub
 
 ManejadorError:
     Close #Canal
-    MsgBox "OcurriÛ un error: " & Err.Description, vbCritical, "Error"
+    MsgBox "Ocurri√≥ un error: " & Err.Description, vbCritical, "Error"
     
 End Sub
 
 Sub GuardarArchivoTexto(ByVal RutaArchivo As String)
     Dim Canal As Integer
     
-    ' Obtiene un n˙mero de canal libre para manejar el archivo
+    ' Obtiene un n√∫mero de canal libre para manejar el archivo
     Canal = FreeFile
     
     On Error GoTo ManejadorError
@@ -160,13 +160,13 @@ Sub GuardarArchivoTexto(ByVal RutaArchivo As String)
     Close #Canal
     
 
-    MsgBox "Archivo guardado exitosamente en: " & RutaArchivo, vbInformation, "…xito"
+    MsgBox "Archivo guardado exitosamente en: " & RutaArchivo, vbInformation, "√âxito"
     Exit Sub
 
 ManejadorError:
     ' Asegura que el archivo se cierre si ocurre un error
     Close #Canal
-    MsgBox "OcurriÛ un error al guardar el archivo: " & Err.Description, vbCritical, "Error"
+    MsgBox "Ocurri√≥ un error al guardar el archivo: " & Err.Description, vbCritical, "Error"
 End Sub
 
 Sub abrirOpenExcel(as_referencia As String)
@@ -185,7 +185,7 @@ Sub abrirOpenExcel(as_referencia As String)
     partes = Split(cuerpoRef, "#")
     
     If UBound(partes) <> 2 Then
-        MsgBox "La taxonomÌa est· incompleta: " & as_referencia, vbCritical, "Error de Estructura"
+        MsgBox "La taxonom√≠a est√° incompleta: " & as_referencia, vbCritical, "Error de Estructura"
         Exit Sub
     End If
     
@@ -195,7 +195,7 @@ Sub abrirOpenExcel(as_referencia As String)
     
     On Error GoTo ManejadorError
     
-    ' 4. GestiÛn del Libro
+    ' 4. Gesti√≥n del Libro
     If Not LibroEstaAbierto(NombreLibro) Then
         rutaCompleta = ActiveWorkbook.Path & Application.PathSeparator & NombreLibro
         If Dir(rutaCompleta) <> "" Then
@@ -208,10 +208,11 @@ Sub abrirOpenExcel(as_referencia As String)
         Set wbDestino = Workbooks(NombreLibro)
     End If
     
-    ' 5. ActivaciÛn de Hoja y Celda
+    ' 5. Activaci√≥n de Hoja y Celda
     wbDestino.Activate
     
     On Error Resume Next
+    If Len(Trim(NombreHoja)) = 0 Then Exit Sub
     Set wsDestino = wbDestino.Worksheets(NombreHoja)
     On Error GoTo ManejadorError
     
@@ -221,8 +222,8 @@ Sub abrirOpenExcel(as_referencia As String)
     End If
     
     wsDestino.Activate
-    
-    ' Limpiar sÌmbolos de absolutez ($) si la celda los trae (ej: $A$1 -> A1) para asegurar compatibilidad con Range.Select
+    If Len(Trim(refCelda)) = 0 Then Exit Sub
+    ' Limpiar s√≠mbolos de absolutez ($) si la celda los trae (ej: $A$1 -> A1) para asegurar compatibilidad con Range.Select
     refCelda = Replace(refCelda, "$", "")
     
     wsDestino.Range(refCelda).Select
@@ -232,6 +233,6 @@ Sub abrirOpenExcel(as_referencia As String)
     Exit Sub
 
 ManejadorError:
-    MsgBox "OcurriÛ un error al navegar: " & Err.Description, vbCritical, "Error de NavegaciÛn"
+    MsgBox "Ocurri√≥ un error al navegar: " & Err.Description, vbCritical, "Error de Navegaci√≥n"
     
 End Sub
