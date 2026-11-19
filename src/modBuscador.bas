@@ -74,7 +74,11 @@ Sub MostrarBuscador()
     
     Dim resultadoBusqueda As Variant
     
-    If Not mod_ContinuaEjecucion Then Exit Sub
+    If Not mod_ContinuaEjecucion Then
+        Call RegistrarLibrosAbiertos
+        'MsgBox "Registro libros"
+        Exit Sub
+    End If
     ' Buscamos la palabra "AQUI" en el libro actual, hoja "Datos",
     ' Columna 1 (o "A") para buscar, devolviendo los valores de la Columna 2 ("B") y Columna 3 ("C")
     resultadoBusqueda = BuscarEnColumnas(ls_libro_datos, get_NOMBRE_HOJA_FUNCION, 1, 2, 3, mod_cadenaSeleccionada)
@@ -88,6 +92,9 @@ Sub MostrarBuscador()
     Else
         MsgBox "No se encontró el elemento buscado.", vbExclamation, "Aviso"
     End If
+
+    Call RegistrarLibrosAbiertos
+    
 
 End Sub
 
@@ -457,9 +464,9 @@ Sub InvocaAyuda(as_opcion)
     If as_opcion = "librosabiertos" Then Call CargarNombresLibrosAbiertos
     If as_opcion = "CargarValoresColumnaActiva" Then Call CargarValoresColumnaActiva
     If as_opcion = "CargarValoresTodasColumnasUnicos" Then Call CargarValoresTodasColumnasUnicos
-    
-    
-    
+    If as_opcion = "CargarNombresHojas" Then Call CargarNombresHojas
+    If as_opcion = "CargarCoincidenciasCeldaActiva" Then Call CargarCoincidenciasCeldaActiva
+
     
     ' Validar si hay datos cargados antes de mostrar la interfaz
     If IsEmpty(allData) Then
@@ -626,3 +633,91 @@ Sub CargarValoresTodasColumnasUnicos()
     allData = arrResult
 End Sub
 
+Sub CargarNombresHojas()
+    Dim ws As Worksheet
+    Dim arrLibros() As Variant
+    Dim i As Long
+    
+    If ActiveWorkbook.Worksheets.Count = 1 Then
+        allData = Empty
+        Exit Sub
+    End If
+    
+    ' Redimensiona el arreglo según la cantidad de libros abiertos
+    ReDim arrLibros(1 To ActiveWorkbook.Worksheets.Count, 1 To 3)
+    
+    i = 1
+    For Each ws In ActiveWorkbook.Worksheets
+        arrLibros(i, 1) = ws.Name
+        arrLibros(i, 2) = ws.Name
+        arrLibros(i, 3) = "\openexcel|" & ActiveWorkbook.Name & "#" & ws.Name & "#"
+        i = i + 1
+    Next ws
+    
+    ' Asigna el listado directo a la variable de salida
+    allData = arrLibros
+End Sub
+
+
+
+Public Sub CargarCoincidenciasCeldaActiva()
+    ' Verifica que haya una celda activa válida
+    If ActiveCell Is Nothing Then
+        allData = Empty
+        Exit Sub
+    End If
+    
+    ' Si la celda activa está vacía, limpia y sale
+    If IsEmpty(ActiveCell.Value) Or Trim(CStr(ActiveCell.Value)) = "" Then
+        allData = Empty
+        Exit Sub
+    End If
+    
+    ' Carga todas las coincidencias encontradas en el libro en allData
+    allData = BuscarValorEnLibro(ActiveCell.Value, False) ' False = coincidencia parcial; True = exacta
+End Sub
+
+Public Sub CargarOpcionesExcel(as_libro, as_hoja)
+    ' Verifica que haya una celda activa válida
+    ' Si la celda activa está vacía, limpia y sale
+
+    Dim lb_ejecutar As Boolean
+    Dim ls_libro_datos As String
+    lb_ejecutar = False
+    
+    Call CargarDatosPrevia(as_libro, as_hoja)
+    
+    ' Validar si hay datos cargados antes de mostrar la interfaz
+    If IsEmpty(allData) Then
+        MsgBox "No hay datos para mostrar en el buscador.", vbExclamation, "Aviso"
+        Exit Sub
+    End If
+
+    Dim uf As UserForm1
+    Set uf = New UserForm1
+    
+    ' Mostrar formulario modal
+    uf.Show
+    
+    Dim etiquetaSeleccionada As String
+    On Error Resume Next
+    etiquetaSeleccionada = uf.Tag
+    mod_cadenaSeleccionada = etiquetaSeleccionada
+    On Error GoTo 0
+    
+    Unload uf
+    Set uf = Nothing
+    ' Limpiamos la variable global al cerrar para liberar memoria
+    allData = Empty
+    Dim resultadoBusqueda As Variant
+    
+    If Not mod_ContinuaEjecucion Then Exit Sub
+    ' Verificamos si arrojó resultados
+    If Not IsEmpty(mod_cadenaSeleccionada) Then
+        AbrirRecurso (CStr(mod_cadenaSeleccionada))
+    Else
+        MsgBox "No se encontró el elemento buscado.", vbExclamation, "Aviso"
+    End If
+        
+        
+End Sub
