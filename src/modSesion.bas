@@ -3,7 +3,7 @@ Attribute VB_Name = "modSesion"
 Sub RegistrarLibrosAbiertos()
     Dim wbAbierto As Workbook
     Dim wsDestino As Worksheet
-    Dim UltimaFila As Long
+    Dim ultimaFila As Long
     Dim filaDestino As Long
     Dim fechaHoy As String
     Dim NombreLibro As String
@@ -32,10 +32,10 @@ Sub RegistrarLibrosAbiertos()
     wsDestino.Columns("B").NumberFormat = "@"
     
     ' Encontrar la última fila con datos en la hoja de destino
-    UltimaFila = wsDestino.Cells(wsDestino.Rows.Count, "A").End(xlUp).Row + 1
-    If UltimaFila = 0 Then UltimaFila = 1
+    ultimaFila = wsDestino.Cells(wsDestino.Rows.Count, "A").End(xlUp).Row + 1
+    If ultimaFila = 0 Then ultimaFila = 1
     
-    filaDestino = UltimaFila + 1
+    filaDestino = ultimaFila + 1
     'If wsDestino.Cells(1, 1).Value = "" Then filaDestino = 1 ' Si la hoja está vacía
     
     ' Recorrer todos los libros abiertos en la sesión de Excel
@@ -56,7 +56,7 @@ Sub RegistrarLibrosAbiertos()
             
             ' Verificar si ya existe un registro para este libro en la fecha de hoy
             yaRegistrado = False
-            For i = 1 To UltimaFila
+            For i = 1 To ultimaFila
                 If wsDestino.Cells(i, 1).Value = NombreLibro And wsDestino.Cells(i, 2).Value = fechaHoy Then
                     yaRegistrado = True
                     Exit For
@@ -72,13 +72,13 @@ Sub RegistrarLibrosAbiertos()
                 wsDestino.Cells(filaDestino, 3).Value = "ms-excel:ofe|u|" & rutaLibro
                 
                 filaDestino = filaDestino + 1
-                UltimaFila = ultimaFil + 1 ' Actualizamos para el bucle de validación interno si hubiera duplicados en la misma ejecución
+                ultimaFila = ultimaFil + 1 ' Actualizamos para el bucle de validación interno si hubiera duplicados en la misma ejecución
             End If
             
         End If
     Next wbAbierto
     
-    MsgBox "Proceso completado con éxito.", vbInformation, "Registro de Libros"
+    'MsgBox "Proceso completado con éxito.", vbInformation, "Registro de Libros"
 End Sub
 
 

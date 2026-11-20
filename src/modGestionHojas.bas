@@ -79,7 +79,7 @@ ManejadorError:
     MsgBox "Ocurrió un error inesperado al renombrar la hoja: " & Err.Description, vbCritical, "Error"
 End Sub
 
-Function ExisteLibroYHoja(ByVal NombreLibro As String, ByVal NombreHoja As String) As Boolean
+Function ExisteLibroYHoja(ByVal NombreLibro As String, ByVal nombreHoja As String) As Boolean
     Dim wkb As Workbook
     Dim libroExiste As Boolean
     Dim hojaExiste As Boolean
@@ -97,7 +97,7 @@ Function ExisteLibroYHoja(ByVal NombreLibro As String, ByVal NombreHoja As Strin
     
     ' 2. Verificar si la hoja existe dentro de ese libro
     On Error Resume Next
-    hojaExiste = Not (wkb.Sheets(NombreHoja) Is Nothing)
+    hojaExiste = Not (wkb.Sheets(nombreHoja) Is Nothing)
     On Error GoTo 0
     
     ' Si ambos existen, la función devuelve True

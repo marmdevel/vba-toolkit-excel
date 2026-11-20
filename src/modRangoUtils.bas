@@ -13,7 +13,7 @@ AbrirRecurso (CStr(ls_comando))
 
 End Sub
 
-Sub CopiarFormatoPorValor(valorBuscado As Variant, NombreLibro As String, NombreHoja As String, columnaBúsqueda As String)
+Sub CopiarFormatoPorValor(valorBuscado As Variant, NombreLibro As String, nombreHoja As String, columnaBúsqueda As String)
 
     Dim wsOrigen As Worksheet
     Dim wbOrigen As Workbook
@@ -29,7 +29,7 @@ Sub CopiarFormatoPorValor(valorBuscado As Variant, NombreLibro As String, Nombre
     ' ==========================================
     valorBuscado = "## activecell"      ' Cambia esto por el valor que buscas
     NombreLibro = "A-Tool.xlsm"   ' Libro donde está la celda (debe estar abierto)
-    NombreHoja = "@markdown@"                  ' Nombre de la hoja de origen
+    nombreHoja = "@markdown@"                  ' Nombre de la hoja de origen
     columnaBúsqueda = "C"                 ' Columna donde se realizará la búsqueda
     
     ' Validar que haya una selección activa en la hoja actual
@@ -50,11 +50,11 @@ Sub CopiarFormatoPorValor(valorBuscado As Variant, NombreLibro As String, Nombre
     
     ' Referenciar la hoja de origen
     On Error Resume Next
-    Set wsOrigen = wbOrigen.Sheets(NombreHoja)
+    Set wsOrigen = wbOrigen.Sheets(nombreHoja)
     On Error GoTo 0
     
     If wsOrigen Is Nothing Then
-        MsgBox "No se encontró la hoja '" & NombreHoja & "' en el libro especificado.", vbCritical, "Error"
+        MsgBox "No se encontró la hoja '" & nombreHoja & "' en el libro especificado.", vbCritical, "Error"
         Exit Sub
     End If
     
@@ -95,7 +95,7 @@ End Sub
 
 Sub SeleccionarColumnasHastaUltimaFilaUsada_Global()
     Dim ws As Worksheet
-    Dim UltimaFila As Long
+    Dim ultimaFila As Long
     Dim colSet As Collection
     Dim area As Range
     Dim celda As Range
@@ -113,9 +113,9 @@ Sub SeleccionarColumnasHastaUltimaFilaUsada_Global()
     
     ' Determinar la última fila usada en toda la hoja
     On Error Resume Next
-    UltimaFila = ws.Cells.Find("*", SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row
+    ultimaFila = ws.Cells.Find("*", SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row
     On Error GoTo 0
-    If UltimaFila = 0 Then
+    If ultimaFila = 0 Then
         MsgBox "La hoja está vacía.", vbInformation
         Exit Sub
     End If
@@ -138,9 +138,9 @@ Sub SeleccionarColumnasHastaUltimaFilaUsada_Global()
     Dim rngFinal As Range
     For i = 1 To colSet.Count
         If rngFinal Is Nothing Then
-            Set rngFinal = ws.Range(ws.Cells(1, colSet(i)), ws.Cells(UltimaFila, colSet(i)))
+            Set rngFinal = ws.Range(ws.Cells(1, colSet(i)), ws.Cells(ultimaFila, colSet(i)))
         Else
-            Set rngFinal = Union(rngFinal, ws.Range(ws.Cells(1, colSet(i)), ws.Cells(UltimaFila, colSet(i))))
+            Set rngFinal = Union(rngFinal, ws.Range(ws.Cells(1, colSet(i)), ws.Cells(ultimaFila, colSet(i))))
         End If
     Next i
     
@@ -158,7 +158,7 @@ Sub DuplicarFilaOSeleccion()
     End If
     
     On Error GoTo ManejoError
-    Application.ScreenUpdating = False
+    Application.screenUpdating = False
     
     ' Definir el rango completo de las filas seleccionadas
     Set rng = Selection.EntireRow
@@ -171,34 +171,34 @@ Sub DuplicarFilaOSeleccion()
     
     ' Limpiar el portapapeles y restaurar la pantalla
     Application.CutCopyMode = False
-    Application.ScreenUpdating = True
+    Application.screenUpdating = True
     Exit Sub
 
 ManejoError:
-    Application.ScreenUpdating = True
+    Application.screenUpdating = True
     Application.CutCopyMode = False
     MsgBox "Ocurrió un error al intentar duplicar las filas.", vbCritical
 End Sub
 
 Sub EliminarFilasVacias()
-    Dim UltimaFila As Long
+    Dim ultimaFila As Long
     Dim i As Long
     Dim ls_hoja_actual As String
     Dim ws_hoja_actual As Worksheet
     
     ' Optimizar velocidad desactivando la actualización de pantalla
-    Application.ScreenUpdating = False
-    Application.Calculation = xlCalculationManual
+    Application.screenUpdating = False
+    Application.calculation = xlCalculationManual
     
     On Error GoTo ManejadorError
     ls_hoja_actual = ActiveSheet.Name
     Set ws_hoja_actual = ActiveWorkbook.Worksheets(ls_hoja_actual)
     ' Encontrar la última fila con datos usando la celda A1 como referencia
-    UltimaFila = get_ObtenerUltimaFilaSpecial(ws_hoja_actual)
+    ultimaFila = get_ObtenerUltimaFilaSpecial(ws_hoja_actual)
     'UltimaFila = ActiveSheet.Cells(ActiveSheet.Rows.Count, "A").End(xlUp).Row
     
     ' Recorrer desde la última fila hasta la primera (de abajo hacia arriba)
-    For i = UltimaFila To 1 Step -1
+    For i = ultimaFila To 1 Step -1
         ' Verificar si toda la fila está vacía
         If Application.WorksheetFunction.CountA(ActiveSheet.Rows(i)) = 0 Then
             ActiveSheet.Rows(i).Delete
@@ -207,8 +207,8 @@ Sub EliminarFilasVacias()
  
 ManejadorError:
     ' Reactivar configuraciones originales
-    Application.ScreenUpdating = True
-    Application.Calculation = xlCalculationAutomatic
+    Application.screenUpdating = True
+    Application.calculation = xlCalculationAutomatic
     
     If Err.Number = 0 Then
         MsgBox "¡Filas vacías eliminadas con éxito!", vbInformation, "Proceso Terminado"
@@ -217,13 +217,13 @@ ManejadorError:
     End If
 End Sub
 
-Function get_ObtenerUltimaFilaSpecial(Optional Hoja As Worksheet) As Long
+Function get_ObtenerUltimaFilaSpecial(Optional hoja As Worksheet) As Long
     Dim Fila As Long
-    If Hoja Is Nothing Then Set Hoja = ActiveSheet
+    If hoja Is Nothing Then Set hoja = ActiveSheet
     
     On Error Resume Next
     ' Encuentra la última celda con datos/formato en la hoja
-    Fila = Hoja.Cells.SpecialCells(xlCellTypeLastCell).Row
+    Fila = hoja.Cells.SpecialCells(xlCellTypeLastCell).Row
     On Error GoTo 0
     
     ' Si hay algún error o la hoja está vacía, por defecto devuelve 1

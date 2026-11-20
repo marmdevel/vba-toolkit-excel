@@ -1,6 +1,7 @@
+Attribute VB_Name = "modBuscador"
 Option Explicit
 
-' Variable pÃºblica global donde se precargan los datos
+' Variable pública global donde se precargan los datos
 Public allData As Variant
 
 ' 1. Precarga los datos en la variable previa antes de abrir el formulario
@@ -9,7 +10,7 @@ Sub CargarDatosPrevia(as_libro, as_hoja)
     Dim lastRow As Long
     Dim wbDatos As Workbook
     
-    ' Obtiene el libro configurado en el mÃ³dulo de constantes
+    ' Obtiene el libro configurado en el módulo de constantes
     Set wbDatos = ObtenerLibroDatos(as_libro)
     
     On Error Resume Next
@@ -17,7 +18,7 @@ Sub CargarDatosPrevia(as_libro, as_hoja)
     On Error GoTo 0
     
     If ws Is Nothing Then
-        MsgBox "No se encontrÃ³ la hoja '" & NOMBRE_HOJA_DATOS & "' en el libro especificado.", vbCritical, "Error"
+        MsgBox "No se encontró la hoja '" & NOMBRE_HOJA_DATOS & "' en el libro especificado.", vbCritical, "Error"
         Exit Sub
     End If
     
@@ -31,7 +32,7 @@ Sub CargarDatosPrevia(as_libro, as_hoja)
     allData = ws.Range("A2:C" & lastRow).Value
 End Sub
 
-' 2. FunciÃ³n principal que coordina la precarga, abre el formulario y devuelve el valor
+' 2. Función principal que coordina la precarga, abre el formulario y devuelve el valor
 Sub MostrarBuscador()
     Dim lb_ejecutar As Boolean
     Dim ls_libro_datos As String
@@ -83,14 +84,14 @@ Sub MostrarBuscador()
     ' Columna 1 (o "A") para buscar, devolviendo los valores de la Columna 2 ("B") y Columna 3 ("C")
     resultadoBusqueda = BuscarEnColumnas(ls_libro_datos, get_NOMBRE_HOJA_FUNCION, 1, 2, 3, mod_cadenaSeleccionada)
     
-    ' Verificamos si arrojÃ³ resultados
+    ' Verificamos si arrojó resultados
     If Not IsEmpty(resultadoBusqueda) Then
         EjecutarInvocacionDinamica resultadoBusqueda
         'MsgBox "Encontrado:" & vbCrLf & _
         '       "Valor Columna 2 (Alias): " & resultadoBusqueda(1) & vbCrLf & _
-        '       "Valor Columna 3 (Etiqueta): " & resultadoBusqueda(2), vbInformation, "Resultado de BÃºsqueda"
+        '       "Valor Columna 3 (Etiqueta): " & resultadoBusqueda(2), vbInformation, "Resultado de Búsqueda"
     Else
-        MsgBox "No se encontrÃ³ el elemento buscado.", vbExclamation, "Aviso"
+        MsgBox "No se encontró el elemento buscado.", vbExclamation, "Aviso"
     End If
 
     Call RegistrarLibrosAbiertos
@@ -98,7 +99,7 @@ Sub MostrarBuscador()
 
 End Sub
 
-' 3. LÃ³gica de filtrado multi-palabra centralizada (consumiendo la variable previa)
+' 3. Lógica de filtrado multi-palabra centralizada (consumiendo la variable previa)
 Sub EjecutarFiltro(ByVal textoFiltro As String, ByRef lb As MSForms.ListBox)
     If IsEmpty(allData) Then Exit Sub
     
@@ -188,7 +189,7 @@ Function CargarDatosTodasLasHojas(as_workbook) As Variant
     
     Set wb = Workbooks(as_workbook)
     
-    ' --- PASO 1: Calcular el total EXACTO de filas no vacÃ­as ---
+    ' --- PASO 1: Calcular el total EXACTO de filas no vacías ---
     totalRows = 0
     For Each ws In wb.Worksheets
         celdaA1 = Trim(CStr(ws.Range("A1").Value))
@@ -199,7 +200,7 @@ Function CargarDatosTodasLasHojas(as_workbook) As Variant
             'lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
             lastRow = get_ObtenerUltimaFilaSpecial(ws)
             If lastRow >= 1 Then
-                ' Contamos Ãºnicamente las filas donde la columna A tiene contenido real
+                ' Contamos únicamente las filas donde la columna A tiene contenido real
                 For Each cell In ws.Range("A1:A" & lastRow)
                     If Not IsEmpty(cell.Value) And cell.Value <> "" Then
                         totalRows = totalRows + 1
@@ -209,13 +210,13 @@ Function CargarDatosTodasLasHojas(as_workbook) As Variant
         End If
     Next ws
     
-    ' Si no hay datos en ninguna hoja vÃ¡lida, salimos
+    ' Si no hay datos en ninguna hoja válida, salimos
     If totalRows = 0 Then
         CargarDatosTodasLasHojas = Empty
         Exit Function
     End If
     
-    ' Redimensionar el arreglo final con el tamaÃ±o exacto desde el principio
+    ' Redimensionar el arreglo final con el tamaño exacto desde el principio
     ReDim l_allData(1 To totalRows, 1 To 3)
     
     ' --- PASO 2: Volcar los datos de cada hoja en el arreglo general ---
@@ -237,7 +238,7 @@ Function CargarDatosTodasLasHojas(as_workbook) As Variant
                             l_allData(currentRow, 1) = tempArr(r, 1) ' Columna A (Texto)
                             l_allData(currentRow, 2) = tempArr(r, 2) ' Columna B (Alias)
                             
-                            ' Columna C construida automÃ¡ticamente para navegaciÃ³n
+                            ' Columna C construida automáticamente para navegación
                             'l_allData(currentRow, 3) = "\openexcel|" & wb.Name & "#" & ws.Name & "#A" & (r + 1)
                             l_allData(currentRow, 3) = "\openexcel|" & wb.Name & "#" & ws.Name & "#A" & (r)
                             
@@ -281,7 +282,7 @@ Function CargarDatosTodasLasHojas_old(as_workbook) As Variant
         Exit Function
     End If
     For Each ws In Workbooks(as_workbook).Worksheets
-        ' Puedes agregar aquÃ­ un filtro si quieres excluir alguna hoja por nombre, ej: If ws.Name <> "Resumen" Then
+        ' Puedes agregar aquí un filtro si quieres excluir alguna hoja por nombre, ej: If ws.Name <> "Resumen" Then
         lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
         
         ' Si la hoja tiene datos desde la fila 2 en adelante
@@ -292,7 +293,7 @@ Function CargarDatosTodasLasHojas_old(as_workbook) As Variant
     
     ' Si no hay datos en ninguna hoja, salimos
     If totalRows = 0 Then
-        CargarDatosTodasLasHojas = Empty
+        CargarDatosTodasLasHojas_old = Empty
         Exit Function
     End If
     
@@ -320,7 +321,7 @@ Function CargarDatosTodasLasHojas_old(as_workbook) As Variant
     Next ws
     
     ' Devolver el arreglo completo
-    CargarDatosTodasLasHojas = l_allData
+    CargarDatosTodasLasHojas_old = l_allData
 End Function
 
 Sub MiMacroAsociada()
@@ -362,16 +363,16 @@ Sub MiMacroAsociada()
     
     If Not mod_ContinuaEjecucion Then Exit Sub
    
-    ' Verificamos si arrojÃ³ resultados
+    ' Verificamos si arrojó resultados
     If Not IsEmpty(mod_cadenaSeleccionada) Then
         MostrarProgreso
         AbrirRecurso mod_cadenaSeleccionada
         'MsgBox "Encontrado:" & vbCrLf & _
         '       "Valor Columna 2 (Alias): " & resultadoBusqueda(1) & vbCrLf & _
-        '       "Valor Columna 3 (Etiqueta): " & resultadoBusqueda(2), vbInformation, "Resultado de BÃºsqueda"
+        '       "Valor Columna 3 (Etiqueta): " & resultadoBusqueda(2), vbInformation, "Resultado de Búsqueda"
         OcultarProgreso
     Else
-        MsgBox "No se encontrÃ³ el elemento buscado.", vbExclamation, "Aviso"
+        MsgBox "No se encontró el elemento buscado.", vbExclamation, "Aviso"
     End If
 
 End Sub
@@ -419,14 +420,14 @@ Sub mainCall()
     ' Columna 1 (o "A") para buscar, devolviendo los valores de la Columna 2 ("B") y Columna 3 ("C")
     resultadoBusqueda = BuscarEnColumnas(ls_libro_datos, get_NOMBRE_HOJA_FUNCION, 1, 2, 3, mod_cadenaSeleccionada)
     
-    ' Verificamos si arrojÃ³ resultados
+    ' Verificamos si arrojó resultados
     If Not IsEmpty(resultadoBusqueda) Then
         EjecutarInvocacionDinamica resultadoBusqueda
         'MsgBox "Encontrado:" & vbCrLf & _
         '       "Valor Columna 2 (Alias): " & resultadoBusqueda(1) & vbCrLf & _
-        '       "Valor Columna 3 (Etiqueta): " & resultadoBusqueda(2), vbInformation, "Resultado de BÃºsqueda"
+        '       "Valor Columna 3 (Etiqueta): " & resultadoBusqueda(2), vbInformation, "Resultado de Búsqueda"
     Else
-        MsgBox "No se encontrÃ³ el elemento buscado.", vbExclamation, "Aviso"
+        MsgBox "No se encontró el elemento buscado.", vbExclamation, "Aviso"
     End If
 
 
@@ -466,7 +467,9 @@ Sub InvocaAyuda(as_opcion)
     If as_opcion = "CargarValoresTodasColumnasUnicos" Then Call CargarValoresTodasColumnasUnicos
     If as_opcion = "CargarNombresHojas" Then Call CargarNombresHojas
     If as_opcion = "CargarCoincidenciasCeldaActiva" Then Call CargarCoincidenciasCeldaActiva
-
+    If as_opcion = "FiltrarPorValoresColumnaActiva" Then Call CargarValoresColumnaActiva
+    If as_opcion = "CargarValoresColumnaCabecera" Then Call CargarValoresColumnaCabecera
+    
     
     ' Validar si hay datos cargados antes de mostrar la interfaz
     If IsEmpty(allData) Then
@@ -493,11 +496,21 @@ Sub InvocaAyuda(as_opcion)
     Dim resultadoBusqueda As Variant
     
     If Not mod_ContinuaEjecucion Then Exit Sub
-    ' Verificamos si arrojÃ³ resultados
+    ' Verificamos si arrojó resultados
     If Not IsEmpty(mod_cadenaSeleccionada) Then
         AbrirRecurso (CStr(mod_cadenaSeleccionada))
+        If as_opcion = "FiltrarPorValoresColumnaActiva" Then
+            'MsgBox "ejecuta funcion"
+            FiltrarPorCeldaActiva
+        End If
+        If as_opcion = "CargarValoresColumnaCabecera" Then
+            'MsgBox "ejecuta funcion"
+            InvocaAyuda ("FiltrarPorValoresColumnaActiva")
+            'FiltrarPorCeldaActiva
+        End If
+    
     Else
-        MsgBox "No se encontrÃ³ el elemento buscado.", vbExclamation, "Aviso"
+        MsgBox "No se encontró el elemento buscado.", vbExclamation, "Aviso"
     End If
     
 End Sub
@@ -512,7 +525,7 @@ Sub CargarNombresLibrosAbiertos()
         Exit Sub
     End If
     
-    ' Redimensiona el arreglo segÃºn la cantidad de libros abiertos
+    ' Redimensiona el arreglo según la cantidad de libros abiertos
     ReDim arrLibros(1 To Workbooks.Count, 1 To 3)
     
     i = 1
@@ -530,40 +543,75 @@ End Sub
 
 
 ' Carga los datos de la columna activa de la hoja actual en la variable global
-Sub CargarValoresColumnaActiva()
+
+
+Public Sub CargarValoresColumnaActiva()
     Dim ws As Worksheet
     Dim colIndex As Long
-    Dim i, lastRow As Long
+    Dim i As Long
+    Dim lastRow As Long
+    Dim totalUnicos As Long
     Dim wr As Range
-    Dim c As Variant
+    Dim c As Range
+    Dim dictUnicos As Object
+    Dim clave As Variant
     Dim arrLibros() As Variant
-    
-    
+
     allData = Empty
-    
-    ' Obtiene la hoja activa y el nÃºmero de la columna donde se encuentra la celda seleccionada
+
+    If ActiveWorkbook Is Nothing Then Exit Sub
+    If Not TypeOf ActiveSheet Is Worksheet Then Exit Sub
+    If ActiveCell Is Nothing Then Exit Sub
+
     Set ws = ActiveSheet
     colIndex = ActiveCell.Column
-    
-    ' Encuentra la Ãºltima fila con datos especÃ­ficamente en esa columna
+
+    ' Encuentra la última fila con datos en la hoja/columna según tu helper
     lastRow = get_ObtenerUltimaFilaSpecial(ws)
-    
-    ' Si solo estÃ¡ el encabezado o estÃ¡ vacÃ­o
+
+    ' Si solo está el encabezado o está vacío
     If lastRow < 2 Then
         Exit Sub
     End If
-    
-    ReDim arrLibros(1 To lastRow, 1 To 3)
-    ' Carga los valores de la columna activa (desde la fila 2) en un arreglo bidimensional
+
+    Set dictUnicos = CreateObject("Scripting.Dictionary")
+    ' vbTextCompare trata "ABC" y "abc" como el mismo valor; usa vbBinaryCompare si deben distinguirse
+    dictUnicos.CompareMode = vbTextCompare
+
     Set wr = ws.Range(ws.Cells(2, colIndex), ws.Cells(lastRow, colIndex))
-    i = 1
-    For Each c In wr
-        arrLibros(i, 1) = c.Value
-        arrLibros(i, 2) = c.Value
-        arrLibros(i, 3) = "\openexcel|" & ActiveWorkbook.Name & "#" & ws.Name & "#" & c.Address
-        i = i + 1
+
+    ' 1. Recolectar valores únicos y conservar la dirección de su primera aparición
+    For Each c In wr.Cells
+        If Not IsError(c.Value) Then
+            If LenB(Trim$(CStr(c.Value))) > 0 Then
+                clave = Trim$(CStr(c.Value))
+                If Not dictUnicos.Exists(clave) Then
+                    ' Array() tiene base 0 por defecto: (0) = valor original, (1) = dirección de celda
+                    dictUnicos.Add clave, Array(c.Value, c.Address)
+                End If
+            End If
+        End If
     Next c
+
+    totalUnicos = dictUnicos.Count
+    If totalUnicos = 0 Then
+        Exit Sub
+    End If
+
+    ' 2. Construir la matriz final directamente desde el Dictionary (mantiene orden de aparición)
+    ReDim arrLibros(1 To totalUnicos, 1 To 3)
+    i = 1
+
+    For Each clave In dictUnicos.Keys
+        arrLibros(i, 1) = dictUnicos(clave)(0)
+        arrLibros(i, 2) = dictUnicos(clave)(0)
+        arrLibros(i, 3) = "\openexcel|" & ActiveWorkbook.Name & "#" & ws.Name & "#" & dictUnicos(clave)(1)
+        i = i + 1
+    Next clave
+
     allData = arrLibros
+
+    Set dictUnicos = Nothing
 End Sub
 
 
@@ -583,11 +631,11 @@ Sub CargarValoresTodasColumnasUnicos()
     ' Obtiene la hoja activa
     Set ws = ActiveSheet
     
-    ' Encuentra la Ãºltima fila usando tu funciÃ³n especial
+    ' Encuentra la última fila usando tu función especial
     lastRow = get_ObtenerUltimaFilaSpecial(ws)
     If lastRow < 2 Then Exit Sub
     
-    ' Encuentra la Ãºltima columna con datos en la hoja
+    ' Encuentra la última columna con datos en la hoja
     On Error Resume Next
     lastCol = ws.Cells.Find(What:="*", After:=ws.Cells(1, 1), _
                             LookAt:=xlPart, LookIn:=xlFormulas, _
@@ -596,7 +644,7 @@ Sub CargarValoresTodasColumnasUnicos()
     
     If lastCol < 1 Then Exit Sub
     
-    ' Usamos Scripting.Dictionary para filtrar celdas vacÃ­as y duplicados automÃ¡ticamente
+    ' Usamos Scripting.Dictionary para filtrar celdas vacías y duplicados automáticamente
     Set dict = CreateObject("Scripting.Dictionary")
     
     ' Recorre todas las columnas y filas de datos (omitiendo encabezados en fila 1)
@@ -604,11 +652,11 @@ Sub CargarValoresTodasColumnasUnicos()
         For r = 2 To lastRow
             Set c = ws.Cells(r, col)
             
-            ' Valida que la celda no estÃ© vacÃ­a ni contenga solo espacios
+            ' Valida que la celda no esté vacía ni contenga solo espacios
             If Not IsEmpty(c.Value) And Trim(CStr(c.Value)) <> "" Then
                 key = c.Value
                 
-                ' Si el valor aÃºn no existe en el diccionario, lo registra con su URI
+                ' Si el valor aún no existe en el diccionario, lo registra con su URI
                 If Not dict.Exists(key) Then
                     dict.Add key, Array(c.Value, c.Value, "\openexcel|" & ActiveWorkbook.Name & "#" & ws.Name & "#" & c.Address)
                 End If
@@ -618,7 +666,7 @@ Sub CargarValoresTodasColumnasUnicos()
     
     If dict.Count = 0 Then Exit Sub
     
-    ' Redimensiona el arreglo de salida en base a los elementos Ãºnicos encontrados
+    ' Redimensiona el arreglo de salida en base a los elementos únicos encontrados
     ReDim arrResult(1 To dict.Count, 1 To 3)
     
     i = 1
@@ -643,7 +691,7 @@ Sub CargarNombresHojas()
         Exit Sub
     End If
     
-    ' Redimensiona el arreglo segÃºn la cantidad de libros abiertos
+    ' Redimensiona el arreglo según la cantidad de libros abiertos
     ReDim arrLibros(1 To ActiveWorkbook.Worksheets.Count, 1 To 3)
     
     i = 1
@@ -661,13 +709,13 @@ End Sub
 
 
 Public Sub CargarCoincidenciasCeldaActiva()
-    ' Verifica que haya una celda activa vÃ¡lida
+    ' Verifica que haya una celda activa válida
     If ActiveCell Is Nothing Then
         allData = Empty
         Exit Sub
     End If
     
-    ' Si la celda activa estÃ¡ vacÃ­a, limpia y sale
+    ' Si la celda activa está vacía, limpia y sale
     If IsEmpty(ActiveCell.Value) Or Trim(CStr(ActiveCell.Value)) = "" Then
         allData = Empty
         Exit Sub
@@ -678,8 +726,8 @@ Public Sub CargarCoincidenciasCeldaActiva()
 End Sub
 
 Public Sub CargarOpcionesExcel(as_libro, as_hoja)
-    ' Verifica que haya una celda activa vÃ¡lida
-    ' Si la celda activa estÃ¡ vacÃ­a, limpia y sale
+    ' Verifica que haya una celda activa válida
+    ' Si la celda activa está vacía, limpia y sale
 
     Dim lb_ejecutar As Boolean
     Dim ls_libro_datos As String
@@ -712,12 +760,82 @@ Public Sub CargarOpcionesExcel(as_libro, as_hoja)
     Dim resultadoBusqueda As Variant
     
     If Not mod_ContinuaEjecucion Then Exit Sub
-    ' Verificamos si arrojÃ³ resultados
+    ' Verificamos si arrojó resultados
     If Not IsEmpty(mod_cadenaSeleccionada) Then
         AbrirRecurso (CStr(mod_cadenaSeleccionada))
     Else
-        MsgBox "No se encontrÃ³ el elemento buscado.", vbExclamation, "Aviso"
+        MsgBox "No se encontró el elemento buscado.", vbExclamation, "Aviso"
     End If
         
         
+End Sub
+
+Public Sub CargarValoresColumnaCabecera()
+    Dim ws As Worksheet
+    Dim colIndex As Long
+    Dim i As Long
+    Dim lastRow As Long
+    Dim totalUnicos As Long
+    Dim wr As Range
+    Dim c As Range
+    Dim dictUnicos As Object
+    Dim clave As Variant
+    Dim arrLibros() As Variant
+
+    allData = Empty
+
+    If ActiveWorkbook Is Nothing Then Exit Sub
+    If Not TypeOf ActiveSheet Is Worksheet Then Exit Sub
+    If ActiveCell Is Nothing Then Exit Sub
+
+    Set ws = ActiveSheet
+    colIndex = 30
+
+    ' Encuentra la última fila con datos en la hoja/columna según tu helper
+    'lastRow = get_ObtenerUltimaFilaSpecial(ws)
+    lastRow = 1
+    
+    ' Si solo está el encabezado o está vacío
+    'If lastRow < 2 Then
+    '    Exit Sub
+    'End If
+
+    Set dictUnicos = CreateObject("Scripting.Dictionary")
+    ' vbTextCompare trata "ABC" y "abc" como el mismo valor; usa vbBinaryCompare si deben distinguirse
+    dictUnicos.CompareMode = vbTextCompare
+
+    Set wr = ws.Range(ws.Cells(1, 1), ws.Cells(1, colIndex))
+
+    ' 1. Recolectar valores únicos y conservar la dirección de su primera aparición
+    For Each c In wr.Cells
+        If Not IsError(c.Value) Then
+            If LenB(Trim$(CStr(c.Value))) > 0 Then
+                clave = Trim$(CStr(c.Value))
+                If Not dictUnicos.Exists(clave) Then
+                    ' Array() tiene base 0 por defecto: (0) = valor original, (1) = dirección de celda
+                    dictUnicos.Add clave, Array(c.Value, c.Address)
+                End If
+            End If
+        End If
+    Next c
+
+    totalUnicos = dictUnicos.Count
+    If totalUnicos = 0 Then
+        Exit Sub
+    End If
+
+    ' 2. Construir la matriz final directamente desde el Dictionary (mantiene orden de aparición)
+    ReDim arrLibros(1 To totalUnicos, 1 To 3)
+    i = 1
+
+    For Each clave In dictUnicos.Keys
+        arrLibros(i, 1) = dictUnicos(clave)(0)
+        arrLibros(i, 2) = dictUnicos(clave)(0)
+        arrLibros(i, 3) = "\openexcel|" & ActiveWorkbook.Name & "#" & ws.Name & "#" & dictUnicos(clave)(1)
+        i = i + 1
+    Next clave
+
+    allData = arrLibros
+
+    Set dictUnicos = Nothing
 End Sub

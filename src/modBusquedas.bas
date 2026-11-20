@@ -12,7 +12,7 @@ Option Explicit
 ' Devuelve: Un Array con dos elementos (ValorCol2, ValorCol3) o Empty si no lo encuentra.
 ' =========================================================================
 Public Function BuscarEnColumnas(ByVal NombreLibro As String, _
-                                  ByVal NombreHoja As String, _
+                                  ByVal nombreHoja As String, _
                                   ByVal col1 As Variant, _
                                   ByVal col2 As Variant, _
                                   ByVal col3 As Variant, _
@@ -28,9 +28,9 @@ Public Function BuscarEnColumnas(ByVal NombreLibro As String, _
         Exit Function
     End If
     
-    Set ws = wb.Sheets(NombreHoja)
+    Set ws = wb.Sheets(nombreHoja)
     If ws Is Nothing Then
-        MsgBox "La hoja '" & NombreHoja & "' no existe en el libro '" & NombreLibro & "'.", vbCritical, "Error de Hoja"
+        MsgBox "La hoja '" & nombreHoja & "' no existe en el libro '" & NombreLibro & "'.", vbCritical, "Error de Hoja"
         BuscarEnColumnas = Empty
         Exit Function
     End If
@@ -77,5 +77,86 @@ Public Function BuscarEnColumnas(ByVal NombreLibro As String, _
     
     ' Si no encuentra nada, devuelve Empty
     BuscarEnColumnas = Empty
+End Function
+
+Public Function BuscarValorEnLibro(ByVal valorBuscado As Variant, Optional ByVal coincidenciaExacta As Boolean = False) As Variant
+    Dim ws As Worksheet
+    Dim rngFound As Range
+    Dim firstAddress As String
+    Dim resultados() As Variant
+    Dim totalCoincidencias As Long
+    Dim lookAtMode As XlLookAt
+    Dim textoBusqueda As String
+    
+    textoBusqueda = CStr(valorBuscado)
+    If coincidenciaExacta Then
+        lookAtMode = xlWhole
+    Else
+        lookAtMode = xlPart
+    End If
+    
+    ' Inicializa un arreglo temporal grande (por ejemplo, hasta 10,000 coincidencias)
+    ' y luego lo recorta al tamaño exacto para evitar ReDim Preserve en cada iteración
+    ReDim resultados(1 To 10000, 1 To 3)
+    totalCoincidencias = 0
+    
+    For Each ws In ActiveWorkbook.Worksheets
+        With ws.Cells
+            Set rngFound = .Find( _
+                What:=textoBusqueda, _
+                After:=.Cells(.Rows.Count, .Columns.Count), _
+                LookIn:=xlValues, _
+                LookAt:=lookAtMode, _
+                SearchOrder:=xlByRows, _
+                SearchDirection:=xlNext, _
+                MatchCase:=False, _
+                SearchFormat:=False)
+            
+            If Not rngFound Is Nothing Then
+                firstAddress = rngFound.Address
+                
+                Do
+                    ' Evita incluir la misma celda activa si no lo deseas (opcional):
+                    ' If Not (ws.Name = ActiveSheet.Name And rngFound.Address = ActiveCell.Address) Then
+                    
+                    totalCoincidencias = totalCoincidencias + 1
+                    
+                    ' Expande el buffer si se supera el límite inicial
+                    If totalCoincidencias > UBound(resultados, 1) Then
+                        ReDim Preserve resultados(1 To UBound(resultados, 1) + 10000, 1 To 3)
+                    End If
+                    
+                    ' Columna 1: Nombre de la hoja y referencia de celda
+                    resultados(totalCoincidencias, 1) = ws.Name & "!" & rngFound.Address(False, False) & " - " & CStr(rngFound.Value) 'ws.Name & "!" & rngFound.Address(False, False)
+                    ' Columna 2: Valor encontrado en la celda
+                    resultados(totalCoincidencias, 2) = ws.Name & "!" & rngFound.Address(False, False)
+                    ' Columna 3: Enlace/comando manteniendo tu formato
+                    resultados(totalCoincidencias, 3) = "\openexcel|" & ActiveWorkbook.Name & "#" & ws.Name & "#" & rngFound.Address(False, False)
+                    
+                    Set rngFound = .FindNext(rngFound)
+                    
+                    If rngFound Is Nothing Then Exit Do
+                Loop While rngFound.Address <> firstAddress
+            End If
+        End With
+    Next ws
+    
+    If totalCoincidencias = 0 Then
+        BuscarValorEnLibro = Empty
+        Exit Function
+    End If
+    
+    ' Recorta el arreglo final a la cantidad exacta de coincidencias encontradas
+    Dim arrFinal() As Variant
+    Dim i As Long
+    ReDim arrFinal(1 To totalCoincidencias, 1 To 3)
+    
+    For i = 1 To totalCoincidencias
+        arrFinal(i, 1) = resultados(i, 1)
+        arrFinal(i, 2) = resultados(i, 2)
+        arrFinal(i, 3) = resultados(i, 3)
+    Next i
+    
+    BuscarValorEnLibro = arrFinal
 End Function
 
